@@ -39,9 +39,9 @@ contract MainchainGatewayStorage is Pausable {
     event TokenDeposited(
         uint256 indexed _depositId,
         address indexed _owner,
+        string _sidechainOwner,
         address indexed _tokenAddress,
-        address _sidechainAddress,
-        uint32 _standard,
+        string _sidechainAddress,
         uint256 _tokenNumber // ERC-20 amount or ERC721 tokenId
     );
 
@@ -53,10 +53,9 @@ contract MainchainGatewayStorage is Pausable {
     );
 
     struct DepositEntry {
-        address owner;
+        string owner;
         address tokenAddress;
-        address sidechainAddress;
-        uint32 standard;
+        string sidechainAddress;
         uint256 tokenNumber;
     }
 
@@ -67,13 +66,15 @@ contract MainchainGatewayStorage is Pausable {
     }
 
     uint256 public depositCount;
+
     DepositEntry[] public deposits;
+
     mapping(uint256 => WithdrawalEntry) public withdrawals;
 }
 
 contract Validator is MainchainGatewayStorage {
     address internal _validator;
-    
+
     constructor() {
         _setValidator(_msgSender());
     }
@@ -90,14 +91,41 @@ contract Validator is MainchainGatewayStorage {
 contract GigaVault is Validator {
     using SafeMath for uint256;
 
+    mapping(address => string) public mainchainMap;
+
+    // mapping(string => address) public sidechainMap;
+
+    function mapToken(address mainchainToken, string memory sidechainToken)
+        external
+        onlyOwner
+    {
+        mainchainMap[mainchainToken] = sidechainToken;
+        // sidechainMap[sidechainToken] = mainchainToken;
+    }
+
+    function getMappedToken(address _token)
+        external
+        view
+        returns (string memory _sidechainToken)
+    {
+        _sidechainToken = mainchainMap[_token];
+    }
+
+    modifier onlyMappedToken(address _token) {
+        require(
+            keccak256(bytes(mainchainMap[_token])) != keccak256(""),
+            "MainchainGatewayManager: Token is not mapped"
+        );
+        _;
+    }
 
     function depositERC721For(
-        address _user,
+        string memory _user,
         address _token,
         uint256 _tokenId
     ) public whenNotPaused returns (uint256) {
         IERC721(_token).transferFrom(msg.sender, address(this), _tokenId);
-        return _createDepositEntry(_user, _token, 721, _tokenId);
+        return _createDepositEntry(msg.sender, _user, _token, _tokenId);
     }
 
     function withdrawERC721For(
@@ -170,26 +198,17 @@ contract GigaVault is Validator {
     }
 
     function _createDepositEntry(
-        address _owner,
+        address _sender,
+        string memory _owner,
         address _token,
-        uint32 _standard,
         uint256 _number
-    )
-        internal
-        returns (
-            // onlyMappedToken(_token, _standard)
-            uint256 _depositId
-        )
-    {
-        // (, address _sidechainToken, uint32 _tokenStandard) = registry
-        //     .getMappedToken(_token, true);
-        // require(_standard == _tokenStandard);
+    ) internal onlyMappedToken(_token) returns (uint256 _depositId) {
+        string storage _sidechainToken = mainchainMap[_token];
 
         DepositEntry memory _entry = DepositEntry(
             _owner,
             _token,
-            _token,
-            _standard,
+            _sidechainToken,
             _number
         );
 
@@ -198,10 +217,10 @@ contract GigaVault is Validator {
 
         emit TokenDeposited(
             _depositId,
+            _sender,
             _owner,
             _token,
-            _token,
-            _standard,
+            _sidechainToken,
             _number
         );
     }
