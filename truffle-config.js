@@ -23,6 +23,9 @@
 // const fs = require('fs');
 // const mnemonic = fs.readFileSync(".secret").toString().trim();
 
+require('dotenv').config()
+const HDWalletProvider = require('truffle-hdwallet-provider')
+
 module.exports = {
   /**
    * Networks define how you connect to your ethereum client and let you set the
@@ -71,6 +74,16 @@ module.exports = {
     // network_id: 2111,   // This network is yours, in the cloud.
     // production: true    // Treats this network as if it was a public net. (default: false)
     // }
+    ropsten: {
+      provider: () => new HDWalletProvider(
+        process.env.MNEMONIC,
+        process.env.ROPSTEN_URL),
+      network_id: 3,
+      gas: 5500000,
+      confirmations: 2,
+      timeoutBlocks: 200,
+      skipDryRun: true
+    },
   },
 
   // Set default mocha options here, use special reporters etc.

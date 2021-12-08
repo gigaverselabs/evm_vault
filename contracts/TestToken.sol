@@ -2,11 +2,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "./ERC721.sol";
+import "./ERC721Enumarable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract TestToken is ERC721, Ownable {
+contract TestToken is ERC721Enumerable, Ownable {
 
     using Counters for Counters.Counter;
     Counters.Counter private _tokenIdTracker;
@@ -34,11 +34,14 @@ contract TestToken is ERC721, Ownable {
         _safeMint(_to, _tokenId);
     }
 
-    function mint(uint256 _tokenId) public {
+    // function mint(uint256 _tokenId) public {
+    function mint() public {
         uint256 total = totalToken();
         require(total + 1 <= TOTAL_SUPPLY, "Max limit");
 
         address wallet = _msgSender();
+
+        uint256 _tokenId = total+1;
 
         require(
             rawOwnerOf(_tokenId) == address(0) &&
