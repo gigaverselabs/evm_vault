@@ -3,9 +3,10 @@ Mechanism mentioned in this document are generic. However due to nature of Giga 
 # GigaBridge Roadmap
 
 1. Single Validator - Current Version
-2. Multiple Validator
-3. No Validator
-4. ZK Bridge
+2. Multiple Validator - Q2 2022
+3. No Validator - Q2 2022
+4. No Validator V2 - Q1 2023 (depends on Dfinity progress on ETH integration)
+5. ZK Validator - No ETA
 
 # General working principal
 
@@ -62,10 +63,12 @@ Works simlar to simple validator, instead it requires a verification to be issue
 # 3. No Validator
 No validator depends on IC (Internet Computer) native features that are currently available or will be enabled in upcoming months. Contrary to previous two solutions, this option does not require separate entity to validate that certain transaction has happend on chain (ETH or IC). The verification and issueance of validation can be created directly on IC (Internet Computer) and then transmitted by the user.
 
-1. Verification of transactions on EVM based chain
+Basic working principles:
+
+1 Verification of transactions on EVM based chain
 Using native https IC call, latest transactions along with number of blocks can be downloaded directly to IC (best quality source should be used, like infura) using RPC API of EVM. When Vault storage transaction is detected issue Verification for IC. This requires user to send assets to vault contract on EVM (no further steps required).
 
-2. Verification of transaction on IC
+2 Verification of transaction on IC
 Using heartbeat function scan transactions for Burn or Storage events (giga721 has option to get principal filtered events). When Vault transaction is detected create certified variable (uses IC signature and also supplies merkle tree), when user pays EVM transaction fee (via wallet) this variable can be verified by EVM contract.
 
     1. Pros
@@ -78,6 +81,6 @@ Using heartbeat function scan transactions for Burn or Storage events (giga721 h
 # 4. No Validator V2
 After release of native integration between ETH and IC, we can use it to further modify previous version of bridge to make it more decentralized. Having direct access to ETH contract data, makes HTTPS call to RPC API obsolete (no more dependency on third party provider). Additionally native ETH integration will also enable update calls on ETH contracts, whith proper ETH funds management, we can also remove the step when user needs to pay EVM transactio fee and make bridge easier to use for the end user.
 
-# ZK Validator
+# 5. ZK Validator
 
 TODO
