@@ -4,7 +4,7 @@ pragma solidity ^0.8.0;
 
 import "./ERC721Enumarable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
+import "./Ownable.sol";
 
 contract TestToken is ERC721Enumerable, Ownable {
 
